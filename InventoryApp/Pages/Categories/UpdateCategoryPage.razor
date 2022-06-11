@@ -1,0 +1,8 @@
+﻿@page "/category/edit/{CategoryId:int}"
+
+<UpdateCategoryComponent CategoryId="@CategoryId" />
+
+@code {
+    [Parameter]
+    public int CategoryId { get; set; }
+}

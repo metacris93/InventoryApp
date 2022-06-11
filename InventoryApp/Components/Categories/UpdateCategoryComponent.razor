@@ -1,0 +1,40 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+@inject NavigationManager NavManager
+
+<div>
+    <EditForm Model="@Category">
+        <div class="form-group mb-3">
+            <label>Nombre: </label>
+            <InputText class="form-control" @bind-Value="Category.Name" />
+        </div>
+        <div class="form-group mb-3">
+            <label>Descripción: </label>
+            <InputTextArea class="form-control" @bind-Value="Category.Description" />
+        </div>
+        <div class="text-center">
+            <input type="button" class="btn btn-primary" value="Actualizar" @onclick="UpdateCategory" />
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int CategoryId { get; set; }
+
+    Category Category = new Category();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Category = await Repository.Categories.GetById(CategoryId);
+    }
+
+    private async Task UpdateCategory()
+    {
+        await Repository.Categories.Update(Category);
+        await Repository.CompleteAsync();
+        NavManager.NavigateTo("category");
+    }
+}

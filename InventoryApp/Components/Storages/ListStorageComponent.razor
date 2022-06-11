@@ -1,0 +1,44 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Last Update</td>
+                <td>Quantity</td>
+                <td>Product</td>
+                <td>Warehouse</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var storage in storages)
+            {
+                <tr>
+                    <td>@storage.LastUpdate</td>
+                    <td>@storage.PartialQuantity</td>
+                    <td>@products.FirstOrDefault(p => p.Id == storage.ProductId)?.Name</td>
+                    <td>@warehouses.FirstOrDefault(w => w.Id == storage.WareHouseId)?.Name</td>
+                    <td><a href="storage/edit/@storage.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    IEnumerable<Storage> storages = Enumerable.Empty<Storage>();
+    IEnumerable<Product> products = Enumerable.Empty<Product>();
+    IEnumerable<WareHouse> warehouses = Enumerable.Empty<WareHouse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        storages = await Repository.Storages.All();
+        products = await Repository.Products.All();
+        warehouses = await Repository.Warehouses.All();
+    }
+}
+

@@ -1,0 +1,38 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>Descripcion</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in tempCategories)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td><a href="category/edit/@category.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    IEnumerable<Category> categories = Enumerable.Empty<Category>();
+    IEnumerable<Category> tempCategories = Enumerable.Empty<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Repository.Categories.All();
+        tempCategories = categories;
+    }
+}
+

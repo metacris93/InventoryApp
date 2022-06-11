@@ -1,0 +1,74 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+@inject NavigationManager NavManager
+
+<EditForm Model="@Storage">
+    <div class="form-group mb-3">
+        <label>Producto: </label>
+        <InputSelect class="form-select" @bind-Value="Storage.ProductId">
+            @foreach (var product in products)
+            {
+                <option value="@product.Id">@product.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group mb-3">
+        <label>Bodegas: </label>
+        <InputSelect class="form-select" @bind-Value="Storage.WareHouseId">
+            @foreach (var warehouse in warehouses)
+            {
+                <option value="@warehouse.Id">@warehouse.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="text-center">
+        <input type="button" class="btn btn-primary" value="Guardar" @onclick="SaveStorage" />
+    </div>
+</EditForm>
+<div class="text-center h4">
+    <p>@message</p>
+</div>
+@code {
+    string message = string.Empty;
+    Storage Storage = new Storage();
+    IEnumerable<Product> products = Enumerable.Empty<Product>();
+    IEnumerable<WareHouse> warehouses = Enumerable.Empty<WareHouse>();
+
+    private void SelectDefaultValue()
+    {
+        if (products.Any())
+        {
+            Storage.ProductId = products.First().Id;
+        }
+        if (warehouses.Any())
+        {
+            Storage.WareHouseId = warehouses.First().Id;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Repository.Products.All();
+        warehouses = await Repository.Warehouses.All();
+        SelectDefaultValue();
+    }
+
+    private async Task SaveStorage()
+    {
+        if (Repository.Storages.IsProductInStorage(Storage.ProductId, Storage.WareHouseId))
+        {
+            message = "This product is already exist in the storage";
+            return;
+        }
+        Storage.PartialQuantity = 0;
+        Storage.LastUpdate = DateTime.Now;
+        await Repository.Storages.Create(Storage);
+        await Repository.CompleteAsync();
+        message = "Product Registered";
+        NavManager.NavigateTo("storage");
+        @*Storage = new Storage();
+        SelectDefaultValue();*@
+    }
+}
+

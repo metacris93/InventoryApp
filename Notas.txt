@@ -1,0 +1,4 @@
+﻿
+dotnet ef migrations --project ./InventoryDataAccess/InventoryDataAccess.csproj --startup-project ./InventoryApp/InventoryApp.csproj add FirstMigration
+
+dotnet ef database update

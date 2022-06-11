@@ -1,0 +1,58 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+@inject NavigationManager NavManager
+
+
+<EditForm Model="@Product">
+    <div class="form-group mb-3">
+        <label>Nombre: </label>
+        <InputText class="form-control" @bind-Value="Product.Name" />
+    </div>
+    <div class="form-group mb-3">
+        <label>Descripción: </label>
+        <InputTextArea class="form-control" @bind-Value="Product.Description" />
+    </div>
+    <div class="form-group mb-3">
+        <label>Categoría: </label>
+        <InputSelect class="form-select" @bind-Value="Product.CategoryId">
+            @foreach(var category in categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="text-center">
+        <input type="button" class="btn btn-primary" value="Guardar" @onclick="SaveProduct" />
+    </div>
+</EditForm>
+
+@code {
+    Product Product = new Product();
+    IEnumerable<Category> categories = Enumerable.Empty<Category>();
+
+    private void SelectDefaultValue()
+    {
+        if (categories.Any())
+        {
+            Product.CategoryId = categories.First().Id;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Repository.Categories.All();
+        SelectDefaultValue();
+    }
+
+    private async Task SaveProduct()
+    {
+        await Repository.Products.Create(Product);
+        await Repository.CompleteAsync();
+        NavManager.NavigateTo("product");
+        @*this.Product = new Product();
+        SelectDefaultValue();*@
+    }
+}
+

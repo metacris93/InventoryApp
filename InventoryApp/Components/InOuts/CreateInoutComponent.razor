@@ -1,0 +1,124 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+@inject NavigationManager NavManager
+
+<div class="form-group mb-3">
+    <label>Warehouse: </label>
+    <select class="form-control form-select" @onchange="OnChangedWarehouse">
+        @foreach (var warehouse in warehouses)
+        {
+            <option value="@warehouse.Id">@warehouse.Name</option>
+        }
+    </select>
+</div>
+<hr />
+<EditForm Model="@Inout">
+    <div class="form-group mb-3">
+        <label>Products: </label>
+        <InputSelect class="form-control form-select" @bind-Value="Inout.StorageId">
+            @foreach (var storage in storages)
+            {
+                <option value="@storage.Id">@storage.Product.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group mb-3">
+        <label>Quantity: </label>
+        <InputNumber class="form-control" @bind-Value="Inout.Quantity" />
+    </div>
+    <div class="form-group mb-3">
+        <label>Is Entry?: </label>
+        <InputCheckbox @bind-Value="Inout.IsEntry" />
+    </div>
+    <div class="text-center">
+        <input type="button" class="btn btn-primary" value="@buttonValue" @onclick="SaveInout" />
+    </div>
+</EditForm>
+<div class="text-center h4">
+    <p>@message</p>
+</div>
+
+@code {
+    InOut Inout = new InOut();
+    Product Product = new Product();
+    Storage Storage = new Storage();
+    IEnumerable<Storage> storages = Enumerable.Empty<Storage>();
+    IEnumerable<WareHouse> warehouses = Enumerable.Empty<WareHouse>();
+    string message = string.Empty;
+    string buttonValue => Inout.IsEntry ? "Register Entry" : "Register Exit";
+
+    private void SelectDefaultValue()
+    {
+        if (warehouses.Any())
+        {
+            var warehouseId = warehouses.First().Id;
+            storages = Repository.Storages.GetStorageByWarehouse(warehouseId);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        storages = await Repository.Storages.All();
+        warehouses = await Repository.Warehouses.All();
+        SelectDefaultValue();
+        SelectDefaultStorage();
+    }
+
+    private async Task SaveInout()
+    {
+        Storage = storages.FirstOrDefault(s => s.Id == Inout.StorageId);
+        Product = Storage.Product;
+        if (Inout.IsEntry)
+        {
+            Storage.PartialQuantity += Inout.Quantity;
+            await Repository.Storages.Update(Storage);
+            Product.TotalQuantity += Inout.Quantity;
+            await Repository.Products.Update(Product);
+            await Repository.Inouts.Create(Inout);
+            await Repository.CompleteAsync();
+            message = $"The product {Product.Name} was updated";
+        }
+        else
+        {
+            if (IsBiggerThanZero(Inout.Quantity, Storage.PartialQuantity))
+            {
+                Storage.PartialQuantity -= Inout.Quantity;
+                await Repository.Storages.Update(Storage);
+                Product.TotalQuantity -= Inout.Quantity;
+                await Repository.Products.Update(Product);
+                await Repository.Inouts.Create(Inout);
+                await Repository.CompleteAsync();
+                message = $"The product {Product.Name} was updated";
+                Inout = new InOut();
+            }
+            else
+            {
+                message = $"There is not enough in the warehouse for the product";
+            }
+        }
+        //NavManager.NavigateTo("inout");
+    }
+
+    private bool IsBiggerThanZero(int quantity, int storageQuantity)
+    {
+        return storageQuantity > quantity;
+    }
+
+    private void SelectDefaultStorage()
+    {
+        if (storages.Any())
+        {
+            Inout.StorageId = storages.First().Id;
+        }
+    }
+
+    private void OnChangedWarehouse(ChangeEventArgs e)
+    {
+        var warehouseId = Convert.ToInt32(e.Value.ToString());
+        storages = Repository.Storages.GetStorageByWarehouse(warehouseId);
+        SelectDefaultStorage();
+    }
+}
+

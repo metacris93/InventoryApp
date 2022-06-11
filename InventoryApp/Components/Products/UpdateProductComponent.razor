@@ -1,0 +1,58 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+@inject NavigationManager NavManager
+
+<div>
+    <EditForm Model="@Product">
+        <div class="form-group mb-3">
+            <label>Nombre: </label>
+            <InputText class="form-control" @bind-Value="Product.Name" />
+        </div>
+        <div class="form-group mb-3">
+            <label>Descripción: </label>
+            <InputTextArea class="form-control" @bind-Value="Product.Description" />
+        </div>
+        <div class="form-group mb-3">
+            <label>Categoría: </label>
+            <InputSelect class="form-select" @bind-Value="Product.CategoryId">
+                @foreach (var category in categories)
+                {
+                    @if (Product.CategoryId == @category.Id)
+                    {
+                        <option value="@category.Id" selected>@category.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <div class="text-center">
+            <input type="button" class="btn btn-primary" value="Actualizar" @onclick="UpdateProduct" />
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    Product Product = new Product();
+    IEnumerable<Category> categories = Enumerable.Empty<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Repository.Categories.All();
+        Product = await Repository.Products.GetById(ProductId);
+    }
+
+    private async Task UpdateProduct()
+    {
+        await Repository.Products.Update(Product);
+        await Repository.CompleteAsync();
+        NavManager.NavigateTo("product");
+    }
+}

@@ -1,0 +1,38 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>Dirección</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var warehouse in tempWarehouses)
+            {
+                <tr>
+                    <td>@warehouse.Name</td>
+                    <td>@warehouse.Address</td>
+                    <td><a href="warehouse/edit/@warehouse.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    IEnumerable<WareHouse> warehouses = Enumerable.Empty<WareHouse>();
+    IEnumerable<WareHouse> tempWarehouses = Enumerable.Empty<WareHouse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        warehouses = await Repository.Warehouses.All();
+        tempWarehouses = warehouses;
+    }
+}
+

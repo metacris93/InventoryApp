@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InventoryDataAccess\InventoryDataAccess.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\Business\InventoryBusiness.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Microsoft.EntityFrameworkCore.Design" />
+    <None Remove="Components\" />
+    <None Remove="Components\Products\" />
+    <None Remove="Pages\Products\" />
+    <None Remove="Components\Categories\" />
+    <None Remove="Pages\Categories\" />
+    <None Remove="Components\Storages\" />
+    <None Remove="Pages\Storages\" />
+    <None Remove="Components\InOuts\" />
+    <None Remove="Pages\InOuts\" />
+    <None Remove="Components\Warehouses\" />
+    <None Remove="Pages\Warehouses\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Components\" />
+    <Folder Include="Components\Products\" />
+    <Folder Include="Pages\Products\" />
+    <Folder Include="Components\Categories\" />
+    <Folder Include="Pages\Categories\" />
+    <Folder Include="Components\Storages\" />
+    <Folder Include="Pages\Storages\" />
+    <Folder Include="Components\InOuts\" />
+    <Folder Include="Pages\InOuts\" />
+    <Folder Include="Components\Warehouses\" />
+    <Folder Include="Pages\Warehouses\" />
+  </ItemGroup>
+</Project>

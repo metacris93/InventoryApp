@@ -1,0 +1,64 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+
+<hr />
+<select class="form-control" @onchange="CategoryChanged">
+    <option value="">Seleccione...</option>
+    @foreach (var category in categories)
+    {
+        <option value="@category.Id">@category.Name</option>
+    }
+</select>
+<hr />
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nombre</td>
+                <td>Categoría</td>
+                <td>Quantity</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var product in tempProducts)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@categories.FirstOrDefault(c => c.Id == @product.CategoryId)?.Name</td>
+                    <td>@product.TotalQuantity</td>
+                    <td><a href="product/edit/@product.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    IEnumerable<Product> products = Enumerable.Empty<Product>();
+    IEnumerable<Product> tempProducts = Enumerable.Empty<Product>();
+    IEnumerable<Category> categories = Enumerable.Empty<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Repository.Products.All();
+        tempProducts = products;
+        categories = await Repository.Categories.All();
+    }
+    private void CategoryChanged(ChangeEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            tempProducts = products;
+        }
+        else
+        {
+            tempProducts = products.Where(p => p.CategoryId.ToString() == e.Value.ToString());
+        }
+    }
+}
+

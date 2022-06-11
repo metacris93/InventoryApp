@@ -1,0 +1,50 @@
+﻿@using InventoryLibrary
+@using InventoryBusiness.Contracts
+
+@inject IUnitOfWork Repository
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Entered At</td>
+                <td>Quantity</td>
+                <td>Type</td>
+                <td>Storage</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inout in inouts)
+            {
+                <tr>
+                    <td>@inout.EnteredAt</td>
+                    <td>@inout.Quantity</td>
+                    @if (inout.IsEntry)
+                    {
+                        <td>Entry</td>
+                    }
+                    else
+                    {
+                        <td>Exit</td>
+                    }
+                    <td></td>
+                    @*<td>@storages.FirstOrDefault(s => s.Id == inout.StorageId)?.Info()</td>*@
+                    <td><a href="inout/edit/@inout.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    IEnumerable<InOut> inouts = Enumerable.Empty<InOut>();
+    IEnumerable<Storage> storages = Enumerable.Empty<Storage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        storages = await Repository.Storages.All();
+        inouts = await Repository.Inouts.All();
+    }
+}
+
